@@ -1,0 +1,7 @@
+__pycache__
+.vscode
+workspace
+DataManager\__pycache__
+Flask\Endpoints\__pycache__
+UserManager\__pycache__
+Utils\__pycache__
