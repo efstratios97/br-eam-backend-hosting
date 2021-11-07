@@ -50,5 +50,5 @@ class Cleanser:
     def set_datasets(self, datasets: str):
         self.__datasets = datasets
 
-    def set_datasets(self, cleanser_operation_types):
+    def set_cleanser_operation_types(self, cleanser_operation_types):
         self.__cleanser_operation_types = cleanser_operation_types

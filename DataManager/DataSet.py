@@ -6,13 +6,14 @@ Description: Defines a DataSet object
 '''
 
 import Utils.Settings as st
+from datetime import datetime
 
 
 class DataSet:
 
     def __init__(self, datasetID, name: str, owner, hash_of_dataset,
                  cleaned, access_user_list: str, access_business_unit_list: str, description: str,
-                 storage_type, data, size=0):
+                 storage_type, data, label=st.NO_LABEL, size=0, creation_date=datetime.utcnow()):
         self.__datasetID = datasetID
         self.__name = name
         self.__owner = owner
@@ -24,8 +25,11 @@ class DataSet:
         self.__description = description
         self.__data = data
         self.__storage_type = storage_type
+        self.__label = label
+        self.__creation_date = creation_date
 
     # Enums
+
     def enum_cleaned(self, cleaned):
         enum_cleaned = {
             'cleaned': 1,
@@ -84,6 +88,12 @@ class DataSet:
     def get_data(self):
         return self.__data
 
+    def get_label(self):
+        return self.__label
+
+    def get_creation_date(self):
+        return self.__creation_date
+
     # Setter Methods for certain Attributes of DataSet Objects
     def set_name(self, name: str):
         self.__name = name
@@ -108,6 +118,9 @@ class DataSet:
 
     def set_data(self, data):
         self.__data = data
+
+    def set_label(self, label):
+        self.__label = label
 
     # Add business unit to access list
     def add_access_business_unit_list(self, business_unit: str):

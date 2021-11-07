@@ -7,6 +7,7 @@ Description: Endpoints for DataManager
 
 import flask as fl
 import pandas as pd
+from pandas.core.frame import DataFrame
 import DataManager.DataManager as dm
 import DataManager.DataSet as ds
 import UserManager.UserManager as um
@@ -14,6 +15,7 @@ import DataCleanser.Cleanser as cl
 import DataCleanser.DataCleanser as dc
 import Utils.Settings as st
 from collections import OrderedDict
+import DataManagerAPI as dm_api
 import json
 
 
@@ -98,6 +100,8 @@ def post_cleaned_dataset(cleanser_id, dataset_id, uid):
     owner = uid
     # Adds to the user_access_list the owner/creator of the dataset by default
     access_user_list_ids = ""
+    if access_business_unit_list == "":
+        access_business_unit_list = st.DEPARTMENT_GENESIS
     if access_user_list == "":
         access_user_list = owner
     else:
@@ -110,12 +114,73 @@ def post_cleaned_dataset(cleanser_id, dataset_id, uid):
     dataset = dm.DataManager.create_data_set(dm.DataManager, name=name, owner=owner, data=data, cleaned=cleaned,
                                              access_user_list=access_user_list, access_business_unit_list=access_business_unit_list,
                                              description=description, storage_type=storage_type)
-
+    df_out.fillna(value="", inplace=True)
     df_out = df_out.astype(str)
     df_out_dict = df_out.to_dict(orient='records')
-    result = json.dumps(df_out_dict, sort_keys=False)
-    if result == '[]':
-        result = json.dumps([{"Identified Rows": "NONE"}])
+    result.update({"eliminated_rows": json.dumps(
+        df_out_dict, sort_keys=False)})
+    result.update({"cleaned_dataset": dm_api.DataManagerEndpoints.data_set_to_dict(
+        dm_api.DataManagerEndpoints, dataset=dataset)})
+    if result['eliminated_rows'] == '[]':
+        result['eliminated_rows'] = json.dumps([{"Identified Rows": "NONE"}])
+    return fl.jsonify(result), 200
+
+
+@blueprint.route('/create_cleaned_dataset_at_dataset_creation/<cleanser_id>/<uid>', methods=['POST', 'OPTIONS'])
+def post_create_cleaned_dataset_at_dataset_creation(cleanser_id, uid):
+    result = {}
+    data = fl.request.files['file']
+    name = fl.request.form['name']
+    cleaned = 1
+    access_user_list = fl.request.form['access_user_list']
+    access_business_unit_list = fl.request.form['access_business_unit_list']
+    description = fl.request.form['description']
+    storage_type = fl.request.form['storage_type']
+    owner = uid
+    if data.filename.lower()[-3:] == 'csv':
+        data = pd.read_csv(data, engine='openpyxl')
+    elif data.filename.lower()[-4:] == 'xlsx' or data.filename.lower()[-3:] == 'xls':
+        data = pd.read_excel(data, engine='openpyxl')
+    # Adds to the user_access_list the owner/creator of the dataset by default
+    access_user_list_ids = ""
+    if access_business_unit_list == "":
+        access_business_unit_list = st.DEPARTMENT_GENESIS
+    if access_user_list == "":
+        access_user_list = owner
+    else:
+        for user_mail in access_user_list.split(','):
+            user = um.UserManager.get_user_by_email(um.UserManager, user_mail)
+            access_user_list_ids += user.get_userID() + ","
+        access_user_list = access_user_list_ids[:-1]
+    if not owner in access_user_list.split(','):
+        access_user_list += "," + owner
+    data, df_out = dc.DataCleanser.apply_cleanser_at_dataset_creation(
+        dc.DataCleanser, cleanser_id=cleanser_id, dataset_data=data)
+    dataset = dm.DataManager.create_data_set(dm.DataManager, name=name, owner=owner, data=data, cleaned=cleaned,
+                                             access_user_list=access_user_list, access_business_unit_list=access_business_unit_list,
+                                             description=description, storage_type=storage_type)
+    df_out.fillna(value="", inplace=True)
+    df_out = df_out.astype(str)
+    df_out_dict = df_out.to_dict(orient='records')
+    result.update({"eliminated_rows": json.dumps(
+        df_out_dict, sort_keys=False)})
+    result.update({"cleaned_dataset": dm_api.DataManagerEndpoints.data_set_to_dict(
+        dm_api.DataManagerEndpoints, dataset=dataset)})
+    if result['eliminated_rows'] == '[]':
+        result['eliminated_rows'] = json.dumps([{"Identified Rows": "NONE"}])
+    return fl.jsonify(result), 200
+
+
+@blueprint.route('/return_to_dataset_cleaned_rows/<dataset_id>', methods=['POST', 'OPTIONS'])
+def return_todataset_cleaned_rows(dataset_id):
+    result = {}
+    data_dict = fl.request.get_json(force=True)
+    data_to_add = pd.DataFrame([data_dict])
+    dataset = dm.DataManager.get_dataset_by_id(
+        dm.DataManager, dataset_id=dataset_id, local=False)
+    dataset.set_data(data_to_add)
+    dm.DataManager.insert_dataset_data_db(
+        dm.DataManager, dataset=dataset, local=False)
     return fl.jsonify(result), 200
 
 

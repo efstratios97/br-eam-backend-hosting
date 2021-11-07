@@ -11,7 +11,13 @@ import Utils.Settings as st
 class DataBaseSQL:
 
     # Returns SQL statement for creating the DataSet Table
-    def create_DataSet_table_sql(self):
+    def create_DataSet_table_sql(self, archive=False):
+        if archive:
+            table_name = st.TABLE_DATASET_ARCHIVE
+            col_dataset_id = st.ARCHIVE_ID_PREFIX + st.TB_DATASET_COL_DATASET_ID
+        else:
+            table_name = st.TABLE_DATASET
+            col_dataset_id = st.TB_DATASET_COL_DATASET_ID
         sql = ('CREATE TABLE IF NOT EXISTS {table} ('
                + '{col_DATASET_ID} VARCHAR(255) NOT NULL PRIMARY KEY,'
                + '{col_NAME} VARCHAR(255) NOT NULL,'
@@ -22,13 +28,14 @@ class DataBaseSQL:
                + '{col_ACCESS_USER_LIST} TEXT(65535) NOT NULL,'
                + '{col_ACCESS_BUSINESS_UNIT_LIST} TEXT(65535) NOT NULL,'
                + '{col_STORAGE_TYPE} VARCHAR(45) NOT NULL,'
+               + '{col_LABEL} VARCHAR(255),'
                + '{col_DESCRIPTION} TEXT(65535),'
                + '{col_CREATED_AT} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL)')
-        sql = sql.format(table=st.TABLE_DATASET, col_DATASET_ID=st.TB_DATASET_COL_DATASET_ID, col_NAME=st.TB_DATASET_COL_NAME,
+        sql = sql.format(table=table_name, col_DATASET_ID=col_dataset_id, col_NAME=st.TB_DATASET_COL_NAME,
                          col_OWNER=st.TB_DATASET_COL_OWNER, col_HASH_OF_DATASET=st.TB_DATASET_COL_HASH_OF_DATASET,
                          col_CLEANED=st.TB_DATASET_COL_CLEANED, col_SIZE=st.TB_DATASET_COL_SIZE,
                          col_ACCESS_USER_LIST=st.TB_DATASET_COL_ACCESS_USER_LIST, col_ACCESS_BUSINESS_UNIT_LIST=st.TB_DATASET_COL_ACCESS_BUSINESS_UNIT_LIST,
-                         col_STORAGE_TYPE=st.TB_DATASET_COL_STORAGE_TYPE, col_DESCRIPTION=st.TB_DATASET_COL_DESCRIPTION,
+                         col_STORAGE_TYPE=st.TB_DATASET_COL_STORAGE_TYPE, col_LABEL=st.TB_DATASET_COL_LABEL, col_DESCRIPTION=st.TB_DATASET_COL_DESCRIPTION,
                          col_CREATED_AT=st.TB_DATASET_COL_CREATED_AT)
         return sql
 
@@ -130,6 +137,20 @@ class DataBaseSQL:
                          col_DESCRIPTION=st.TB_PLOTS_COL_DESCRIPTION,
                          col_TYPE=st.TB_PLOTS_COL_TYPE, col_PARAMS=st.TB_PLOTS_COL_PARAMETERS,
                          col_CREATED_AT=st.TB_PLOTS_COL_CREATED_AT)
+        return sql
+
+    # Returns SQL statement for creating the Category Table
+
+    def create_label_table_sql(self):
+        sql = ('CREATE TABLE IF NOT EXISTS {table} ('
+               + '{col_LABEL_ID} VARCHAR(255) NOT NULL PRIMARY KEY,'
+               + '{col_NAME} VARCHAR(255) NOT NULL UNIQUE,'
+               + '{col_HEADER_LIST} TEXT(4294967295), '
+               + '{col_OPERATIONS_LIST} TEXT(4294967295), '
+               + '{col_CREATED_AT} TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL);')
+        sql = sql.format(table=st.TABLE_LABEL, col_LABEL_ID=st.TB_LABEL_COL_ID,
+                         col_NAME=st.TB_LABEL_COL_NAME, col_HEADER_LIST=st.TB_LABEL_COL_HEADER,
+                         col_OPERATIONS_LIST=st.TB_LABEL_COL_OPERATIONS_CLEANSER, col_CREATED_AT=st.TB_LABEL_COL_CREATED_AT)
         return sql
 
     # Returns SQL statement for creating a many-to-may relation table
@@ -308,20 +329,26 @@ class DataBaseSQL:
 
     # Returns SQL statement for inserting a datasets in dataset table
     def insert_datasets_values(self, dataset_id, name, owner, hash_of_dataset, size,
-                               cleaned, access_user_list, access_business_unit_list, description, storage_type):
+                               cleaned, access_user_list, access_business_unit_list, description, storage_type, label, archive=False):
+        if archive:
+            table_name = st.TABLE_DATASET_ARCHIVE
+            col_dataset_id = st.ARCHIVE_ID_PREFIX + st.TB_DATASET_COL_DATASET_ID
+        else:
+            table_name = st.TABLE_DATASET
+            col_dataset_id = st.TB_DATASET_COL_DATASET_ID
         sql = ('INSERT INTO {table} ({col_DATASET_ID}, {col_NAME}, {col_OWNER}, {col_HASH_OF_DATASET}, {col_CLEANED},'
-               + '{col_SIZE}, {col_ACCESS_USER_LIST}, {col_ACCESS_BUSINESS_UNIT_LIST}, {col_STORAGE_TYPE}, {col_DESCRIPTION}) '
+               + '{col_SIZE}, {col_ACCESS_USER_LIST}, {col_ACCESS_BUSINESS_UNIT_LIST}, {col_STORAGE_TYPE}, {col_DESCRIPTION}, {col_LABEL}) '
                + 'VALUES ("{DATASET_ID}", "{NAME}", "{OWNER}", "{HASH_OF_DATASET}", {CLEANED},'
-               + '{SIZE}, "{ACCESS_USER_LIST}", "{ACCESS_BUSINESS_UNIT_LIST}", "{STORAGE_TYPE}", "{DESCRIPTION}");')
-        sql = sql.format(table=st.TABLE_DATASET, col_DATASET_ID=st.TB_DATASET_COL_DATASET_ID, col_NAME=st.TB_DATASET_COL_NAME,
+               + '{SIZE}, "{ACCESS_USER_LIST}", "{ACCESS_BUSINESS_UNIT_LIST}", "{STORAGE_TYPE}", "{DESCRIPTION}", "{LABEL}");')
+        sql = sql.format(table=table_name, col_DATASET_ID=col_dataset_id, col_NAME=st.TB_DATASET_COL_NAME,
                          col_OWNER=st.TB_DATASET_COL_OWNER, col_HASH_OF_DATASET=st.TB_DATASET_COL_HASH_OF_DATASET,
                          col_CLEANED=st.TB_DATASET_COL_CLEANED, col_SIZE=st.TB_DATASET_COL_SIZE,
                          col_ACCESS_USER_LIST=st.TB_DATASET_COL_ACCESS_USER_LIST, col_ACCESS_BUSINESS_UNIT_LIST=st.TB_DATASET_COL_ACCESS_BUSINESS_UNIT_LIST,
-                         col_STORAGE_TYPE=st.TB_DATASET_COL_STORAGE_TYPE, col_DESCRIPTION=st.TB_DATASET_COL_DESCRIPTION,
+                         col_STORAGE_TYPE=st.TB_DATASET_COL_STORAGE_TYPE, col_DESCRIPTION=st.TB_DATASET_COL_DESCRIPTION, col_LABEL=st.TB_DATASET_COL_LABEL,
                          DATASET_ID=dataset_id, NAME=name, OWNER=owner, HASH_OF_DATASET=hash_of_dataset,
                          SIZE=size, ACCESS_USER_LIST=access_user_list,
                          ACCESS_BUSINESS_UNIT_LIST=access_business_unit_list, STORAGE_TYPE=storage_type,
-                         CLEANED=cleaned, DESCRIPTION=description)
+                         CLEANED=cleaned, DESCRIPTION=description, LABEL=label)
         return sql
 
     # Returns SQL statement for inserting a user in users table
@@ -349,6 +376,14 @@ class DataBaseSQL:
                + 'VALUES ("{DEPARTMENT_ID}", "{NAME}");')
         sql = sql.format(table=st.TABLE_DEPARTMENTS, col_DEPARTMENT_ID=st.TB_DEPARTMENTS_COL_DEPARTMENT_ID, col_NAME=st.TB_DEPARTMENTS_COL_NAME,
                          DEPARTMENT_ID=departmentID, NAME=department_name)
+        return sql
+
+    def insert_label_values(self, label_id, label_name, dataset_header_list, operations_cleanser):
+        sql = ('INSERT INTO {table} ({col_LABEL_ID}, {col_NAME}, {col_HEADER_LIST}, {col_OPERATIONS_LIST}) '
+               + 'VALUES ("{LABEL_ID}", "{NAME}", "{HEADER_LIST}", "{OPERATION_LIST}");')
+        sql = sql.format(table=st.TABLE_LABEL, col_LABEL_ID=st.TB_LABEL_COL_ID, col_NAME=st.TB_LABEL_COL_NAME,
+                         col_HEADER_LIST=st.TB_LABEL_COL_HEADER, col_OPERATIONS_LIST=st.TB_LABEL_COL_OPERATIONS_CLEANSER,
+                         LABEL_ID=label_id, NAME=label_name, HEADER_LIST=dataset_header_list, OPERATION_LIST=operations_cleanser)
         return sql
 
     # Returns SQL statement for inserting a cleanser in cleansers table
