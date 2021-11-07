@@ -9,17 +9,30 @@ import pandas as pd
 
 
 class BRCleanserAlgorithms:
+    
+    def remove_accidental_appications(self, df, df_out):
+        TO_REMOVE_LABEL = 'TO_REMOVE'
+        self.df_out = df_out
+        def label_accidental_applications(x):
+            self.df_out = self.df_out.append(x)
+            x['Name'] = TO_REMOVE_LABEL
+            return x
+        init_df = df.apply(lambda x: label_accidental_applications(x)
+                           if x['Name'].lower().strip().startswith('anwendung-') and x['Zugeordnete Domäne'] != 'Dummy Objekte (Domäne)'
+                           else x, axis=1)
+        init_df = init_df.drop(
+            init_df[init_df['Name'] == TO_REMOVE_LABEL].index)
+        return init_df, self.df_out
 
     def remove_dummy_appications(self, df, df_out):
         TO_REMOVE_LABEL = 'TO_REMOVE'
         self.df_out = df_out
-
         def label_dummy_applications(x):
             self.df_out = self.df_out.append(x)
             x['Name'] = TO_REMOVE_LABEL
             return x
         init_df = df.apply(lambda x: label_dummy_applications(x)
-                           if x['Name'].lower().strip().startswith('anwend')
+                           if x['Zugeordnete Domäne'] == 'Dummy Objekte (Domäne)'
                            else x, axis=1)
         init_df = init_df.drop(
             init_df[init_df['Name'] == TO_REMOVE_LABEL].index)
@@ -29,7 +42,6 @@ class BRCleanserAlgorithms:
         TO_REMOVE_LABEL = 'TO_REMOVE'
         self.x_duplicates = []
         self.df_out = df_out
-
         def label_duplicate_applications(x, df):
             dup_candidate = x['Name'].replace(" ", "").lower()
             if dup_candidate in self.x_duplicates:
@@ -60,7 +72,6 @@ class BRCleanserAlgorithms:
     def remove_test_appications(self, df, df_out):
         TO_REMOVE_LABEL = 'TO_REMOVE'
         self.df_out = df_out
-
         def label_test_applications(x):
             if "test" in x['Name']:
                 self.df_out = self.df_out.append(x)

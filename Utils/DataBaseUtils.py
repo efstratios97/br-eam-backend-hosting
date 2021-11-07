@@ -5,7 +5,6 @@ Contributors:
 Description:
 '''
 
-import sqlite3
 import pymysql
 import os
 import sqlalchemy
@@ -45,10 +44,12 @@ class DataBaseUtils:
     def __connect_local_db(self):
         conn = None
         try:
-            conn = sqlite3.connect(self.db_local)
+            #conn = sqlite3.connect(self.db_local)
+            print('e')
+
             return conn
-        except sqlite3.Error as e:
-            print(e)
+        except:
+            print('e')
         finally:
             if conn:
                 conn.close()
@@ -83,11 +84,12 @@ class DataBaseUtils:
                 elif fetchall:
                     return cursor.fetchall()
             return True
-        except:
+        except TypeError as e:
             if local:
-                e = sqlite3.Error
+                e = 'sqlite3.Error'
             else:
-                e = pymysql.Error
+                #e = pymysql.Error
+                print('test')
             print(e)
             return False
         finally:

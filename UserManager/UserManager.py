@@ -12,7 +12,6 @@ import Utils.Settings as st
 import DataManager.DataManager as dm
 import DataManager.DataSet as ds
 import os
-import sqlite3
 import pandas as pd
 import json
 
@@ -222,6 +221,27 @@ class UserManager:
         else:
             return False
 
+    def get_departments_frontend(self):
+        data = []
+        db_utils.DataBaseUtils.execute_sql(
+            db_utils.DataBaseUtils, sql_statement=sql_stmt.DataBaseSQL.create_department_table_sql(sql_stmt.DataBaseSQL), local=False)
+        result = db_utils.DataBaseUtils.execute_sql(db_utils.DataBaseUtils,
+                                                    sql_stmt.DataBaseSQL.select_all_data_from_table(
+                                                        sql_stmt.DataBaseSQL, table=st.TABLE_DEPARTMENTS),
+                                                    fetchall=True, local=False)
+        if not st.DEPARTMENT_GENESIS in [item for sublist in result for item in sublist]:
+            db_utils.DataBaseUtils.execute_sql(db_utils.DataBaseUtils,
+                                               sql_statement=sql_stmt.DataBaseSQL.
+                                               insert_department_values(
+                                                   sql_stmt.DataBaseSQL, departmentID=(
+                                                       "dep_" + st.create_id()),
+                                                   department_name=st.DEPARTMENT_GENESIS), local=False)
+        for row in result:
+            if row[1] != st.DEPARTMENT_GENESIS:
+                department = {'department_id': row[0], 'name': row[1]}
+                data.append(department)
+        return data
+
     def get_departments(self):
         data = []
         db_utils.DataBaseUtils.execute_sql(
@@ -230,6 +250,13 @@ class UserManager:
                                                     sql_stmt.DataBaseSQL.select_all_data_from_table(
                                                         sql_stmt.DataBaseSQL, table=st.TABLE_DEPARTMENTS),
                                                     fetchall=True, local=False)
+        if not st.DEPARTMENT_GENESIS in [item for sublist in result for item in sublist]:
+            db_utils.DataBaseUtils.execute_sql(db_utils.DataBaseUtils,
+                                               sql_statement=sql_stmt.DataBaseSQL.
+                                               insert_department_values(
+                                                   sql_stmt.DataBaseSQL, departmentID=(
+                                                       "dep_" + st.create_id()),
+                                                   department_name=st.DEPARTMENT_GENESIS), local=False)
         for row in result:
             department = {'department_id': row[0], 'name': row[1]}
             data.append(department)

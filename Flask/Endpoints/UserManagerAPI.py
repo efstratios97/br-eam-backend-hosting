@@ -133,7 +133,7 @@ def delete_user(to_delete_user_id, user_issuer):
 
 @blueprint.route('/departments', methods=['GET', 'OPTIONS'])
 def get_departments():
-    departments = um.UserManager.get_departments(um.UserManager)
+    departments = um.UserManager.get_departments_frontend(um.UserManager)
     return fl.jsonify(departments), 200
 
 
@@ -180,8 +180,12 @@ def auth_user():
 
     if passwd and st.create_hash_password_sha512(passwd, user.get_userID()) == user.get_password():
         token = us.User.generate_token(us.User, user)
+        # try:
+        #     token = token.decode('utf-8')
+        # except:
+        #     token = token
         result = {
-            "token": token.decode('utf-8'),
+            "token": token,
             "duration": 6600
         }
     else:

@@ -16,8 +16,8 @@ class DataHealthManagerEndpoints:
 blueprint = fl.Blueprint('DataHealthManager', __name__)
 
 
-@blueprint.route('/get_data_for_treemap_ranking/<dataset_id>', methods=['GET', 'OPTIONS'])
-def get_data_for_treemap_ranking(dataset_id):
+@blueprint.route('/get_data_for_app_dep_ranking/<dataset_id>', methods=['GET', 'OPTIONS'])
+def get_data_for_app_dep_ranking(dataset_id):
     result = {}
     result = dhm.DataHealthManager.treemap_ranking_by_applications(
         dhm.DataHealthManager, dataset_id)
