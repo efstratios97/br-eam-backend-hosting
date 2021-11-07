@@ -12,7 +12,6 @@ import DataManager.DataManager as dm
 import ArchitectureViewManager.ArchitectureView as av
 import os
 import pandas as pd
-import numpy as np
 
 
 class ArchitectureViewManager:
@@ -106,8 +105,6 @@ class ArchitectureViewManager:
         series = []
         labels = []
         for component in architecture_view_components:
-            data[component] = data[component].apply(
-                lambda x: np.nan if x == "" else x)
             series.append(
                 {"data": [(1 - (data[component].isna().sum() / len(data[component])))*100],
                  "name": component})

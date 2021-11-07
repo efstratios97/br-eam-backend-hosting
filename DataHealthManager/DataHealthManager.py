@@ -18,10 +18,8 @@ class DataHealthManager:
         data_included = []
         data = []
         df = dm.DataManager.get_table_as_df(dm.DataManager, table=dataset_id)
-        # df['Verantwortliche Organisationseinheit'] = df['Verantwortliche Organisationseinheit'].apply(
-        #     lambda x: 'NICHT EINGEPFLEGT' if not isinstance(x, str) else x)
         df['Verantwortliche Organisationseinheit'] = df['Verantwortliche Organisationseinheit'].apply(
-            lambda x: 'NICHT EINGEPFLEGT' if x == '' else x)  # Because change of how read datasets --> None replaced with ""
+            lambda x: 'NICHT EINGEPFLEGT' if not isinstance(x, str) else x)
         df['Verantwortliche Organisationseinheit'] = df['Verantwortliche Organisationseinheit'].apply(
             lambda x: x.replace(" (Organisationseinheit)", ""))
 

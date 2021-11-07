@@ -45,10 +45,8 @@ class Analyzer:
         return params
 
     def __get_list_bu(self, df):
-        # df['Verantwortliche Organisationseinheit'] = df['Verantwortliche Organisationseinheit'].apply(
-        #     lambda x: 'NICHT EINGEPFLEGT' if not isinstance(x, str) else x)
         df['Verantwortliche Organisationseinheit'] = df['Verantwortliche Organisationseinheit'].apply(
-            lambda x: 'NICHT EINGEPFLEGT' if x == '' else x)  # Because change of how read datasets --> None replaced with ""
+            lambda x: 'NICHT EINGEPFLEGT' if not isinstance(x, str) else x)
         list_bu = df['Verantwortliche Organisationseinheit'].to_list()
         # list_bu = [val.replace(" (Organisationseinheit)", "")
         #            for val in list_bu]

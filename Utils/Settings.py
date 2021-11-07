@@ -19,10 +19,6 @@ ATHENA_CLOUD_DB_HOST = 'mysql.efspah.dreamhosters.com'
 ATHENA_CLOUD_DB_USER = 'efspahdreamhoste'
 ATHENA_CLOUD_DB_PW = 'hiathena'
 ATHENA_CLOUD_DB_DBNAME = 'projectathena'
-# ATHENA_CLOUD_DB_HOST = 'localhost'
-# ATHENA_CLOUD_DB_USER = 'root'
-# ATHENA_CLOUD_DB_PW = '12345'
-# ATHENA_CLOUD_DB_DBNAME = 'brdb'
 
 # Table names
 TABLE_DATASET = 'datasets'
@@ -36,8 +32,6 @@ TABLE_ARCHITECTURE_VIEWS = "architecture_views"
 TABLE_EXECUTIVE_DASHBOARDS = "executive_dashboards"
 TABLE_PLOTS = "executive_dashboards_plots"
 TABLE_EXECUTIVE_DASHBOARDS_PLOTS_RELATION = "executive_dashboard_plot_relation"
-TABLE_LABEL = "labels"
-TABLE_DATASET_ARCHIVE = "dataset_archive"
 
 
 # Dataset Table columns
@@ -51,7 +45,6 @@ TB_DATASET_COL_OWNER = 'OWNER'
 TB_DATASET_COL_HASH_OF_DATASET = 'HASH_OF_DATASET'
 TB_DATASET_COL_SIZE = 'SIZE'
 TB_DATASET_COL_STORAGE_TYPE = 'STORAGE_TYPE'
-TB_DATASET_COL_LABEL = 'LABEL'
 TB_DATASET_COL_CREATED_AT = 'CREATED_AT'
 
 # User Table Columns
@@ -106,18 +99,8 @@ TB_PLOTS_COL_TYPE = "PLOT_TYPE"
 TB_PLOTS_COL_PARAMETERS = "EXECUTIVE_DASHBOARD_PARAMETERS"
 TB_PLOTS_COL_CREATED_AT = "CREATED_AT"
 
-# LABEL Table
-TB_LABEL_COL_ID = "LABEL_ID"
-TB_LABEL_COL_NAME = "LABEL_NAME"
-TB_LABEL_COL_HEADER = "LABEL_HEADER_DATASET"
-TB_LABEL_COL_OPERATIONS_CLEANSER = "LABEL_OPERATIONS_CLEANSER"
-TB_LABEL_COL_CREATED_AT = "CREATED_AT"
-
 # Other Global variables
-DEPARTMENT_GENESIS = "None Department Assigned"
-NO_LABEL = "NO_LABEL_6aba48df0cb55992803d864977c3aa204520d659"
-ARCHIVE_ID_PREFIX = "archive_"
-TB_ARCHIVE_DATASET_COL_DATASET_ID = ARCHIVE_ID_PREFIX + TB_DATASET_COL_DATASET_ID
+DEPARTMENT_GENESIS = "DEPARTMENT_GENESIS_6aba48df0cb55992803d864977c3aa204520d659"
 
 
 def get_filename_of_occured_error():
@@ -167,24 +150,12 @@ def check_list_identical(list_1, list_2):
     #     return True
 
 
-def check_list_1_subset_list_2(list_1, list_2):
-    return set(list_1).issubset(set(list_2))
-
-
 def make_list_to_str(list_1):
     list_str = ''
     for el in list_1:
         list_str += el + ','
     list_1 = list_str[:-1]
     return list_1
-
-
-def make_str_to_list(string_1, based_character=","):
-    return string_1.split(based_character)
-
-
-def make_dataset_id_to_archive_id(dataset_id):
-    return ARCHIVE_ID_PREFIX + dataset_id
 
 
 def enum_storage_type(storage_type):
