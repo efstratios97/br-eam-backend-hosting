@@ -16,9 +16,9 @@ import Flask.Endpoints.ArchitectureViewAPI as api_av
 
 
 app = Flask(__name__)
-CORS(BRapp)
+CORS(app)
 
-@BRapp.route("/")
+@app.route("/")
 def helloWorld():
     return "<html>Hello says Project Athena</html>"
 
