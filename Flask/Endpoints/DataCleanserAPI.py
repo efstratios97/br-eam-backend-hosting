@@ -13,9 +13,9 @@ import DataManager.DataSet as ds
 import UserManager.UserManager as um
 import DataCleanser.Cleanser as cl
 import DataCleanser.DataCleanser as dc
+import Flask.Endpoints.DataManagerAPI as dm_api
 import Utils.Settings as st
 from collections import OrderedDict
-import DataManagerAPI as dm_api
 import json
 
 
